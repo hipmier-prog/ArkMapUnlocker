@@ -17,4 +17,4 @@ MapUnlocker 插件 (C++ 版, 适配 ArkApi v3.54)
 - 下载 dll, 放入服务器即可
 
 联系方式:
-- 使用过程中遇到问题, 可以查看 ShooterGame.log 日志排查
+- 使用过程中遇到问题, 可以查看 ShooterGame.log 日志排查.对的。
