@@ -1,0 +1,9 @@
+{
+  "unlockOrder": [
+    { "boss_trophy": "PrimalItemTrophy_BossTheIsland_C", "next_map": "ScorchedEarth_P" },
+    { "boss_trophy": "PrimalItemTrophy_BossScorched_C", "next_map": "Aberration_P" },
+    { "boss_trophy": "PrimalItemTrophy_BossAberration_C", "next_map": "Extinction_P" },
+    { "boss_trophy": "PrimalItemTrophy_BossExtinction_C", "next_map": "Genesis_P" },
+    { "boss_trophy": "PrimalItemTrophy_BossGenesis_C", "next_map": "Genesis2_P" }
+  ]
+}
