@@ -1,1 +1,19 @@
+name: Build MapUnlocker Plugin
 
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install MSVC
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Build with MSBuild
+      run: msbuild MapUnlocker.sln /p:Configuration=Release
