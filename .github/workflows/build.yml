@@ -18,16 +18,24 @@ jobs:
 
     - name: Install nlohmann-json
       run: |
+        dir
         vcpkg install nlohmann-json --triplet x64-windows
         vcpkg integrate install
+        dir vcpkg_installed\x64-windows\include\nlohmann
       shell: cmd
 
     - name: Download ARK API
       run: |
         curl -L https://github.com/Michidu/ARK-Server-API/releases/download/v3.54/ArkApi_3.54.zip -o arkapi.zip
         unzip arkapi.zip -d arkapi
-        mkdir -p ArkApi/Includes/API/ARK
-        curl -L https://raw.githubusercontent.com/Michidu/ARK-Server-API/v3.54/include/API/ARK/Ark.h -o ArkApi/Includes/API/ARK/Ark.h
+        dir arkapi
+        mkdir ArkApi
+        mkdir ArkApi\Includes
+        mkdir ArkApi\Includes\API
+        mkdir ArkApi\Includes\API\ARK
+        dir ArkApi\Includes\API\ARK
+        curl -L https://raw.githubusercontent.com/Michidu/ARK-Server-API/v3.54/include/API/ARK/Ark.h -o ArkApi\Includes\API\ARK\Ark.h
+        dir ArkApi\Includes\API\ARK
       shell: cmd
 
     - name: Setup MSBuild
@@ -37,6 +45,7 @@ jobs:
 
     - name: Build Plugin
       run: |
+        dir MapUnlocker
         cl /LD /EHsc /I"ArkApi/Includes" /I"vcpkg_installed/x64-windows/include" MapUnlocker/MapUnlocker.cpp /Fe:MapUnlocker/bin/Release/MapUnlocker.dll
       shell: cmd
 
