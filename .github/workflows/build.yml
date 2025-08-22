@@ -1,19 +1,24 @@
-name: Build MapUnlocker Plugin
+name: Build MapUnlocker
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
-
-    - name: Install MSVC
+    - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
-
-    - name: Build with MSBuild
-      run: msbuild MapUnlocker.sln /p:Configuration=Release
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+    - name: Build Plugin
+      run: |
+        cl /LD /EHsc /I"./ArkApi/Includes" MapUnlocker/MapUnlocker.cpp /Fe:MapUnlocker.dll
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: MapUnlocker
+        path: MapUnlocker.dll
