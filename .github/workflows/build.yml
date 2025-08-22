@@ -34,14 +34,19 @@ jobs:
         mkdir ArkApi\Includes\API
         mkdir ArkApi\Includes\API\ARK
         dir ArkApi\Includes\API\ARK
-        curl -L https://raw.githubusercontent.com/Michidu/ARK-Server-API/v3.54/include/API/ARK/Ark.h -o ArkApi\Includes\API\ARK\Ark.h
+        curl -L https://raw.githubusercontent.com/ServersHub/Framework-ArkServerApi/v3.54/include/API/ARK/Ark.h -o ArkApi\Includes\API\ARK\Ark.h
         dir ArkApi\Includes\API\ARK
       shell: cmd
 
-    - name: Setup MSBuild
+    - name: Setup MSBuild and Visual Studio Environment
       uses: microsoft/setup-msbuild@v2
       with:
         vs-version: '17.0'
+
+    - name: Setup Visual Studio Developer Command Prompt
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      shell: cmd
 
     - name: Build Plugin
       run: |
