@@ -9,16 +9,38 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
-    - name: Setup vcpkg
+    - uses: actions/checkout@v4  # 更新到 v4，避免旧版问题
+
+    - name: Setup Vcpkg
       uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgJsonGlob: 'vcpkg.json'
+
+    - name: Install nlohmann-json
+      run: |
+        vcpkg install nlohmann-json --triplet x64-windows
+        vcpkg integrate install
+
+    - name: Download ARK API
+      run: |
+        curl -L https://github.com/Michidu/ARK-Server-API/releases/download/v3.54/ArkApi_3.54.zip -o arkapi.zip
+        unzip arkapi.zip -d arkapi
+        mkdir -p ArkApi/Includes/API/ARK
+        curl -L https://raw.githubusercontent.com/Michidu/ARK-Server-API/v3.54/include/API/ARK/Ark.h -o ArkApi/Includes/API/ARK/Ark.h
+        # 如果 API 包有 version.lib，把它复制到 arkapi/lib 里
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2  # 更新到 v2，更稳定
+      with:
+        vs-version: '17.0'
+
     - name: Build Plugin
       run: |
-        cl /LD /EHsc /I"./ArkApi/Includes" MapUnlocker/MapUnlocker.cpp /Fe:MapUnlocker.dll
+        cl /LD /EHsc /I"ArkApi/Includes" /I"vcpkg_installed/x64-windows/include" MapUnlocker/MapUnlocker.cpp /Fe:MapUnlocker/bin/Release/MapUnlocker.dll
+      shell: cmd  # 用 cmd 运行命令，更兼容
+
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # 这里改成 v4，修复你的错误
       with:
         name: MapUnlocker
-        path: MapUnlocker.dll
+        path: MapUnlocker/bin/Release/MapUnlocker.dll
