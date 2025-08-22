@@ -19,7 +19,7 @@ jobs:
     - name: Install nlohmann-json
       run: |
         dir
-        vcpkg install nlohmann-json --triplet x64-windows
+        vcpkg install --triplet x64-windows
         vcpkg integrate install
         dir vcpkg_installed\x64-windows\include\nlohmann
       shell: cmd
