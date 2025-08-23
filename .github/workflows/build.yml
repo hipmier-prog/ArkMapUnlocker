@@ -8,52 +8,52 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}\vcpkg
+      ARKAPI_VERSION: "3.54"
 
-    - name: Setup Vcpkg
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 安装 vcpkg
+    - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgJsonGlob: 'vcpkg.json'
 
-    - name: Install nlohmann-json
+    # 安装依赖
+    - name: Install Dependencies
+      shell: cmd
       run: |
-        dir
         vcpkg install --triplet x64-windows
         vcpkg integrate install
-        dir vcpkg_installed\x64-windows\include\nlohmann
-      shell: cmd
 
-    - name: Download ARK API
+    # 下载 ArkApi release zip
+    - name: Download ArkApi
+      shell: cmd
       run: |
-        curl -L https://github.com/Michidu/ARK-Server-API/releases/download/v3.54/ArkApi_3.54.zip -o arkapi.zip
-        unzip arkapi.zip -d arkapi
-        dir arkapi
-        mkdir ArkApi
-        mkdir ArkApi\Includes
-        mkdir ArkApi\Includes\API
+        curl -L https://github.com/Michidu/ARK-Server-API/releases/download/v%ARKAPI_VERSION%/ArkApi_%ARKAPI_VERSION%.zip -o arkapi.zip
+        powershell -Command "Expand-Archive arkapi.zip -DestinationPath arkapi"
         mkdir ArkApi\Includes\API\ARK
-        dir ArkApi\Includes\API\ARK
-        curl -L https://raw.githubusercontent.com/ServersHub/Framework-ArkServerApi/v3.54/include/API/ARK/Ark.h -o ArkApi\Includes\API\ARK\Ark.h
-        dir ArkApi\Includes\API\ARK
-      shell: cmd
+        curl -L https://raw.githubusercontent.com/ServersHub/Framework-ArkServerApi/v%ARKAPI_VERSION%/include/API/ARK/Ark.h -o ArkApi\Includes\API\ARK\Ark.h
+        mkdir ArkApi\Libs
+        xcopy arkapi\Libs\* ArkApi\Libs\ /s /y
 
-    - name: Setup MSBuild and Visual Studio Environment
-      uses: microsoft/setup-msbuild@v2
-      with:
-        vs-version: '17.0'
-
-    - name: Setup Visual Studio Developer Command Prompt
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      shell: cmd
-
+    # 编译 MapUnlocker.dll
     - name: Build Plugin
-      run: |
-        dir MapUnlocker
-        cl /LD /EHsc /I"ArkApi/Includes" /I"vcpkg_installed/x64-windows/include" MapUnlocker/MapUnlocker.cpp /Fe:MapUnlocker/bin/Release/MapUnlocker.dll
       shell: cmd
+      run: |
+        mkdir MapUnlocker\bin\Release
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        cl /LD /EHsc ^
+           /I"ArkApi/Includes" ^
+           /I"vcpkg_installed/x64-windows/include" ^
+           MapUnlocker\MapUnlocker.cpp ^
+           /link /LIBPATH:"ArkApi\Libs" ArkApi.lib ^
+           /OUT:MapUnlocker\bin\Release\MapUnlocker.dll
 
+    # 上传生成的 DLL
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
